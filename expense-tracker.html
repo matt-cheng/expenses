@@ -95,6 +95,9 @@
     .pay-btn span { font-size: 10px; color: var(--muted); font-weight: 600; }
     .pay-btn.active { border-color: var(--accent); background: #1e1a10; }
     .pay-btn.active i, .pay-btn.active span { color: var(--accent); }
+    .pay-dropdown { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--muted); font-size: 13px; font-family: 'Syne', sans-serif; outline: none; -webkit-appearance: none; margin-top: 8px; cursor: pointer; }
+    .pay-dropdown.selected { border-color: var(--accent); color: var(--accent); background: #1e1a10; }
+    .pay-dropdown option { background: #1a1917; color: var(--text); }
 
     /* Submit */
     .submit-btn { width: 100%; background: var(--accent); color: #0f0e0d; border: none; border-radius: 14px; padding: 17px; font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-tap-highlight-color: transparent; transition: opacity 0.2s, transform 0.1s; }
@@ -203,11 +206,18 @@
     <div class="form-section">
       <label class="form-label">Payment Type</label>
       <div class="pay-grid">
-        <div class="pay-btn active" data-pay="Credit Card" onclick="selectPay(this)"><i class="ti ti-credit-card"></i><span>Credit</span></div>
-        <div class="pay-btn" data-pay="Debit Card" onclick="selectPay(this)"><i class="ti ti-credit-card"></i><span>Debit</span></div>
+        <div class="pay-btn active" data-pay="Credit" onclick="selectPay(this)"><i class="ti ti-credit-card"></i><span>Credit</span></div>
+        <div class="pay-btn" data-pay="Apple Pay" onclick="selectPay(this)"><i class="ti ti-brand-apple"></i><span>Apple Pay</span></div>
+        <div class="pay-btn" data-pay="Venmo" onclick="selectPay(this)"><i class="ti ti-device-mobile"></i><span>Venmo</span></div>
         <div class="pay-btn" data-pay="Cash" onclick="selectPay(this)"><i class="ti ti-cash"></i><span>Cash</span></div>
-        <div class="pay-btn" data-pay="Venmo/Zelle" onclick="selectPay(this)"><i class="ti ti-device-mobile"></i><span>P2P</span></div>
       </div>
+      <select class="pay-dropdown" id="payDropdown" onchange="selectPayDropdown(this)">
+        <option value="">— More payment types —</option>
+        <option value="Check">Check</option>
+        <option value="Debit">Debit</option>
+        <option value="PayPal">PayPal</option>
+        <option value="Checking">Checking</option>
+      </select>
     </div>
 
     <div class="form-section">
@@ -260,7 +270,7 @@
     '529 Plan': 'ti-school',
   };
   let selectedCat = 'Food';
-  let selectedPay = 'Credit Card';
+  let selectedPay = 'Credit';
   let hasEntries = false;
 
   function init() {
@@ -305,6 +315,16 @@
     document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     selectedPay = el.dataset.pay;
+    const dd = document.getElementById('payDropdown');
+    dd.value = '';
+    dd.classList.remove('selected');
+  }
+
+  function selectPayDropdown(el) {
+    if (!el.value) return;
+    document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+    selectedPay = el.value;
+    el.classList.add('selected');
   }
 
   function formatDate(val) {
