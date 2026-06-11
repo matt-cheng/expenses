@@ -5,54 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Expenses" />
-  <title>Expenses</title>
+  <meta name="apple-mobile-web-app-title" content="Tracker" />
+  <title>Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f0e0d;
-      --surface: #1a1917;
-      --surface2: #252320;
-      --border: #2e2c29;
-      --accent: #e8c97a;
-      --accent2: #c4a84f;
-      --text: #f0ede8;
-      --muted: #777;
-      --green: #4caf81;
-      --red: #e05c5c;
-      --radius: 14px;
+      --bg: #0f0e0d; --surface: #1a1917; --surface2: #252320; --border: #2e2c29;
+      --accent: #e8c97a; --accent2: #c4a84f; --text: #f0ede8; --muted: #777;
+      --green: #4caf81; --red: #e05c5c; --blue: #6ab0f5; --radius: 14px;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-    .app {
-      max-width: 430px;
-      margin: 0 auto;
-      padding-top: calc(var(--safe-top) + 16px);
-      padding-bottom: calc(var(--safe-bottom) + 80px);
-      padding-left: 16px;
-      padding-right: 16px;
-    }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
-    /* Header */
+    /* ── Tab switcher ── */
+    .tab-bar { display: flex; gap: 8px; padding: calc(var(--safe-top) + 12px) 16px 0; max-width: 430px; margin: 0 auto; }
+    .tab-btn { flex: 1; background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: 'Syne', sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .tab-btn.active { border-color: var(--accent); color: var(--accent); background: #1e1a10; }
+    .tab-btn i { font-size: 16px; }
+
+    /* ── Swipe container ── */
+    .swipe-container { display: flex; width: 200%; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+    .swipe-container.show-commute { transform: translateX(-50%); }
+    .screen { width: 50%; min-height: 100vh; }
+
+    /* ── Shared layout ── */
+    .app { max-width: 430px; margin: 0 auto; padding: 16px 16px calc(var(--safe-bottom) + 80px); }
     .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .header-left h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
     .header-left p { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; margin-top: 2px; }
-
-    /* Settings toggle */
-    .settings-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 18px; }
-    .settings-btn:active { background: var(--surface2); }
-
-    /* Settings panel */
+    .settings-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 18px; -webkit-tap-highlight-color: transparent; }
     .settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: none; }
     .settings-panel.open { display: block; }
     .settings-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
@@ -62,7 +47,7 @@
     .url-input::placeholder { color: var(--muted); }
     .save-btn { background: var(--accent); color: #0f0e0d; border: none; border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap; }
 
-    /* Form */
+    /* ── Form card ── */
     .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
     .form-section { margin-bottom: 20px; }
     .form-section:last-child { margin-bottom: 0; }
@@ -71,13 +56,13 @@
     .form-input:focus { border-color: var(--accent); }
     .form-input::placeholder { color: var(--muted); }
 
-    /* Amount */
+    /* ── Amount ── */
     .amount-wrap { position: relative; }
     .amount-symbol { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 20px; font-weight: 700; pointer-events: none; }
     .amount-input { padding-left: 30px; font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--accent); }
     .amount-input::placeholder { color: #3a3020; }
 
-    /* Category grid */
+    /* ── Category grid ── */
     .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .cat-btn { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.15s; }
     .cat-btn i { font-size: 22px; color: var(--muted); }
@@ -88,7 +73,7 @@
     .cat-dropdown.selected { border-color: var(--accent); color: var(--accent); background: #1e1a10; }
     .cat-dropdown option { background: #1a1917; color: var(--text); }
 
-    /* Payment grid */
+    /* ── Payment grid ── */
     .pay-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .pay-btn { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: all 0.15s; }
     .pay-btn i { font-size: 20px; color: var(--muted); }
@@ -99,13 +84,13 @@
     .pay-dropdown.selected { border-color: var(--accent); color: var(--accent); background: #1e1a10; }
     .pay-dropdown option { background: #1a1917; color: var(--text); }
 
-    /* Submit */
+    /* ── Submit button ── */
     .submit-btn { width: 100%; background: var(--accent); color: #0f0e0d; border: none; border-radius: 14px; padding: 17px; font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-tap-highlight-color: transparent; transition: opacity 0.2s, transform 0.1s; }
     .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
     .submit-btn:disabled { opacity: 0.5; }
-    .submit-btn i { font-size: 18px; }
+    .submit-btn.blue { background: var(--blue); }
 
-    /* Recent */
+    /* ── Recent list ── */
     .recent-section { margin-top: 24px; }
     .recent-title { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
     .recent-list { display: flex; flex-direction: column; gap: 8px; }
@@ -114,196 +99,301 @@
     @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     .recent-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .recent-icon i { font-size: 20px; color: var(--accent); }
+    .recent-icon.blue i { color: var(--blue); }
     .recent-info { flex: 1; min-width: 0; }
     .recent-desc { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .recent-meta { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recent-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .recent-amount { font-size: 15px; font-weight: 700; color: var(--accent); font-family: 'DM Mono', monospace; flex-shrink: 0; }
+    .recent-time { font-size: 13px; font-weight: 700; color: var(--blue); font-family: 'DM Mono', monospace; flex-shrink: 0; text-align: right; }
 
-    /* Toast */
+    /* ── Toast ── */
     .toast { position: fixed; bottom: calc(var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%) translateY(120px); background: var(--surface); border: 1px solid var(--green); border-radius: 12px; padding: 13px 22px; font-size: 14px; font-weight: 600; color: var(--green); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 99; white-space: nowrap; pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.error { border-color: var(--red); color: var(--red); }
 
-    /* Spinner */
+    /* ── Spinner ── */
     .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(15,14,13,0.25); border-top-color: #0f0e0d; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Commute time inputs ── */
+    .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .time-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 15px; font-family: 'DM Mono', monospace; outline: none; -webkit-appearance: none; text-align: center; }
+    .time-input:focus { border-color: var(--blue); }
+    .time-input.blue-accent { border-color: var(--blue); background: #0d1a2e; color: var(--blue); }
   </style>
 </head>
 <body>
-<div class="app">
 
-  <div class="header">
-    <div class="header-left">
-      <h1>💸 Expenses</h1>
-      <p>→ Google Sheets</p>
-    </div>
-    <div class="settings-btn" onclick="toggleSettings()">
-      <i class="ti ti-settings"></i>
-    </div>
-  </div>
-
-  <div class="settings-panel" id="settingsPanel">
-    <label class="settings-label">Apps Script URL</label>
-    <div class="url-row">
-      <input class="url-input" id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
-      <button class="save-btn" onclick="saveUrl()">Save</button>
-    </div>
-  </div>
-
-  <div class="form-card">
-    <div class="form-section">
-      <label class="form-label">Amount</label>
-      <div class="amount-wrap">
-        <span class="amount-symbol">$</span>
-        <input class="form-input amount-input" id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
-      </div>
-    </div>
-
-    <div class="form-section">
-      <label class="form-label">Category</label>
-      <div class="cat-grid">
-        <div class="cat-btn active" data-cat="Food" onclick="selectCat(this)"><i class="ti ti-tools-kitchen-2"></i><span>Food</span></div>
-        <div class="cat-btn" data-cat="Misc" onclick="selectCat(this)"><i class="ti ti-dots"></i><span>Misc</span></div>
-        <div class="cat-btn" data-cat="Groceries" onclick="selectCat(this)"><i class="ti ti-shopping-cart"></i><span>Groceries</span></div>
-        <div class="cat-btn" data-cat="Roth IRA" onclick="selectCat(this)"><i class="ti ti-chart-line"></i><span>Roth IRA</span></div>
-        <div class="cat-btn" data-cat="Donation" onclick="selectCat(this)"><i class="ti ti-heart"></i><span>Donation</span></div>
-        <div class="cat-btn" data-cat="House" onclick="selectCat(this)"><i class="ti ti-home"></i><span>House</span></div>
-      </div>
-      <select class="cat-dropdown" id="catDropdown" onchange="selectCatDropdown(this)">
-        <option value="">— More categories —</option>
-        <option value="Gas">Gas</option>
-        <option value="Bills">Bills</option>
-        <option value="Travel">Travel</option>
-        <option value="Card">Card</option>
-        <option value="Rental">Rental</option>
-        <option value="Clothing">Clothing</option>
-        <option value="Investment">Investment</option>
-        <option value="Doctor">Doctor</option>
-        <option value="Car">Car</option>
-        <option value="Mom">Mom</option>
-        <option value="Hair">Hair</option>
-        <option value="Medicine">Medicine</option>
-        <option value="Parking">Parking</option>
-        <option value="Souvenir">Souvenir</option>
-        <option value="Shoes">Shoes</option>
-        <option value="Dad">Dad</option>
-        <option value="Loan">Loan</option>
-        <option value="Insurance">Insurance</option>
-        <option value="529 Plan">529 Plan</option>
-      </select>
-    </div>
-
-    <div class="form-section">
-      <label class="form-label">Expense Description</label>
-      <input class="form-input" id="description" type="text" placeholder="What was this for?" />
-    </div>
-
-    <div class="form-section">
-      <label class="form-label">Where</label>
-      <input class="form-input" id="where" type="text" placeholder="Merchant / place" />
-    </div>
-
-    <div class="form-section">
-      <label class="form-label">Payment Type</label>
-      <div class="pay-grid">
-        <div class="pay-btn active" data-pay="Credit" onclick="selectPay(this)"><i class="ti ti-credit-card"></i><span>Credit</span></div>
-        <div class="pay-btn" data-pay="Apple Pay" onclick="selectPay(this)"><i class="ti ti-brand-apple"></i><span>Apple Pay</span></div>
-        <div class="pay-btn" data-pay="Venmo" onclick="selectPay(this)"><i class="ti ti-device-mobile"></i><span>Venmo</span></div>
-        <div class="pay-btn" data-pay="Cash" onclick="selectPay(this)"><i class="ti ti-cash"></i><span>Cash</span></div>
-      </div>
-      <select class="pay-dropdown" id="payDropdown" onchange="selectPayDropdown(this)">
-        <option value="">— More payment types —</option>
-        <option value="Check">Check</option>
-        <option value="Debit">Debit</option>
-        <option value="PayPal">PayPal</option>
-        <option value="Checking">Checking</option>
-      </select>
-    </div>
-
-    <div class="form-section">
-      <label class="form-label">Date</label>
-      <input class="form-input" id="expDate" type="date" />
-    </div>
-
-    <button class="submit-btn" id="submitBtn" onclick="submitExpense()">
-      <i class="ti ti-send"></i> Log Expense
-    </button>
-  </div>
-
-  <div class="recent-section">
-    <div class="recent-title">Recent entries</div>
-    <div class="recent-list" id="recentList">
-      <div class="recent-empty">No entries yet this session</div>
-    </div>
-  </div>
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabExpense" onclick="switchTab('expense')">
+    <i class="ti ti-receipt"></i> Expenses
+  </button>
+  <button class="tab-btn" id="tabCommute" onclick="switchTab('commute')">
+    <i class="ti ti-car"></i> Commute
+  </button>
 </div>
+
+<!-- Swipe container -->
+<div class="swipe-container" id="swipeContainer">
+
+  <!-- ══════════════ EXPENSES SCREEN ══════════════ -->
+  <div class="screen" id="screenExpense">
+    <div class="app">
+      <div class="header">
+        <div class="header-left">
+          <h1>💸 Expenses</h1>
+          <p>→ Google Sheets</p>
+        </div>
+        <div class="settings-btn" onclick="toggleSettings('expense')"><i class="ti ti-settings"></i></div>
+      </div>
+
+      <div class="settings-panel" id="settingsExpense">
+        <label class="settings-label">Apps Script URL</label>
+        <div class="url-row">
+          <input class="url-input" id="expenseUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+          <button class="save-btn" onclick="saveUrl('expense')">Save</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-section">
+          <label class="form-label">Amount</label>
+          <div class="amount-wrap">
+            <span class="amount-symbol">$</span>
+            <input class="form-input amount-input" id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Category</label>
+          <div class="cat-grid">
+            <div class="cat-btn active" data-cat="Food" onclick="selectCat(this)"><i class="ti ti-tools-kitchen-2"></i><span>Food</span></div>
+            <div class="cat-btn" data-cat="Misc" onclick="selectCat(this)"><i class="ti ti-dots"></i><span>Misc</span></div>
+            <div class="cat-btn" data-cat="Groceries" onclick="selectCat(this)"><i class="ti ti-shopping-cart"></i><span>Groceries</span></div>
+            <div class="cat-btn" data-cat="Roth IRA" onclick="selectCat(this)"><i class="ti ti-chart-line"></i><span>Roth IRA</span></div>
+            <div class="cat-btn" data-cat="Donation" onclick="selectCat(this)"><i class="ti ti-heart"></i><span>Donation</span></div>
+            <div class="cat-btn" data-cat="House" onclick="selectCat(this)"><i class="ti ti-home"></i><span>House</span></div>
+          </div>
+          <select class="cat-dropdown" id="catDropdown" onchange="selectCatDropdown(this)">
+            <option value="">— More categories —</option>
+            <option value="Gas">Gas</option>
+            <option value="Bills">Bills</option>
+            <option value="Travel">Travel</option>
+            <option value="Card">Card</option>
+            <option value="Rental">Rental</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Investment">Investment</option>
+            <option value="Doctor">Doctor</option>
+            <option value="Car">Car</option>
+            <option value="Mom">Mom</option>
+            <option value="Hair">Hair</option>
+            <option value="Medicine">Medicine</option>
+            <option value="Parking">Parking</option>
+            <option value="Souvenir">Souvenir</option>
+            <option value="Shoes">Shoes</option>
+            <option value="Dad">Dad</option>
+            <option value="Loan">Loan</option>
+            <option value="Insurance">Insurance</option>
+            <option value="529 Plan">529 Plan</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Expense Description</label>
+          <input class="form-input" id="description" type="text" placeholder="What was this for?" />
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Where</label>
+          <input class="form-input" id="where" type="text" placeholder="Merchant / place" />
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Payment Type</label>
+          <div class="pay-grid">
+            <div class="pay-btn active" data-pay="Credit" onclick="selectPay(this)"><i class="ti ti-credit-card"></i><span>Credit</span></div>
+            <div class="pay-btn" data-pay="Apple Pay" onclick="selectPay(this)"><i class="ti ti-brand-apple"></i><span>Apple Pay</span></div>
+            <div class="pay-btn" data-pay="Venmo" onclick="selectPay(this)"><i class="ti ti-device-mobile"></i><span>Venmo</span></div>
+            <div class="pay-btn" data-pay="Cash" onclick="selectPay(this)"><i class="ti ti-cash"></i><span>Cash</span></div>
+          </div>
+          <select class="pay-dropdown" id="payDropdown" onchange="selectPayDropdown(this)">
+            <option value="">— More payment types —</option>
+            <option value="Check">Check</option>
+            <option value="Debit">Debit</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Checking">Checking</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="expDate" type="date" />
+        </div>
+
+        <button class="submit-btn" id="expenseSubmitBtn" onclick="submitExpense()">
+          <i class="ti ti-send"></i> Log Expense
+        </button>
+      </div>
+
+      <div class="recent-section">
+        <div class="recent-title">Recent entries</div>
+        <div class="recent-list" id="expenseRecentList">
+          <div class="recent-empty">No entries yet this session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ COMMUTE SCREEN ══════════════ -->
+  <div class="screen" id="screenCommute">
+    <div class="app">
+      <div class="header">
+        <div class="header-left">
+          <h1>🚗 Commute</h1>
+          <p>→ Google Sheets</p>
+        </div>
+        <div class="settings-btn" onclick="toggleSettings('commute')"><i class="ti ti-settings"></i></div>
+      </div>
+
+      <div class="settings-panel" id="settingsCommute">
+        <label class="settings-label">Apps Script URL</label>
+        <div class="url-row">
+          <input class="url-input" id="commuteUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+          <button class="save-btn" onclick="saveUrl('commute')">Save</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-section">
+          <label class="form-label">Day</label>
+          <input class="form-input" id="commuteDay" type="date" />
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Time Leave</label>
+          <input class="form-input time-input" id="timeLeave" type="time" />
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">ETA Arrive</label>
+          <input class="form-input time-input" id="etaArrive" type="time" />
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Actual Arrive</label>
+          <input class="form-input time-input blue-accent" id="actualArrive" type="time" />
+        </div>
+
+        <button class="submit-btn blue" id="commuteSubmitBtn" onclick="submitCommute()">
+          <i class="ti ti-send"></i> Log Commute
+        </button>
+      </div>
+
+      <div class="recent-section">
+        <div class="recent-title">Recent entries</div>
+        <div class="recent-list" id="commuteRecentList">
+          <div class="recent-empty">No entries yet this session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end swipe-container -->
 
 <div class="toast" id="toast"></div>
 
 <script>
-  const STORAGE_KEY = 'expenseTrackerUrl';
+  const EXPENSE_URL_KEY = 'expenseTrackerUrl';
+  const COMMUTE_URL_KEY = 'commuteTrackerUrl';
+
   const catIcons = {
-    'Food': 'ti-tools-kitchen-2',
-    'Misc': 'ti-dots',
-    'Groceries': 'ti-shopping-cart',
-    'Roth IRA': 'ti-chart-line',
-    'Donation': 'ti-heart',
-    'House': 'ti-home',
-    'Gas': 'ti-gas-station',
-    'Bills': 'ti-file-invoice',
-    'Travel': 'ti-plane',
-    'Clothing': 'ti-hanger',
-    'Doctor': 'ti-stethoscope',
-    'Car': 'ti-car',
-    'Parking': 'ti-parking',
-    'Investment': 'ti-trending-up',
-    'Insurance': 'ti-shield',
-    'Loan': 'ti-coin',
-    'Medicine': 'ti-pill',
-    'Hair': 'ti-scissors',
-    'Shoes': 'ti-shoe',
-    'Souvenir': 'ti-gift',
-    'Card': 'ti-credit-card',
-    'Rental': 'ti-building',
-    'Mom': 'ti-user-heart',
-    'Dad': 'ti-user-heart',
-    '529 Plan': 'ti-school',
+    'Food':'ti-tools-kitchen-2','Misc':'ti-dots','Groceries':'ti-shopping-cart',
+    'Roth IRA':'ti-chart-line','Donation':'ti-heart','House':'ti-home',
+    'Gas':'ti-gas-station','Bills':'ti-file-invoice','Travel':'ti-plane',
+    'Clothing':'ti-hanger','Doctor':'ti-stethoscope','Car':'ti-car',
+    'Parking':'ti-parking','Investment':'ti-trending-up','Insurance':'ti-shield',
+    'Loan':'ti-coin','Medicine':'ti-pill','Hair':'ti-scissors','Shoes':'ti-shoe',
+    'Souvenir':'ti-gift','Card':'ti-credit-card','Rental':'ti-building',
+    'Mom':'ti-user-heart','Dad':'ti-user-heart','529 Plan':'ti-school',
   };
+
   let selectedCat = 'Food';
   let selectedPay = 'Credit';
-  let hasEntries = false;
+  let expenseHasEntries = false;
+  let commuteHasEntries = false;
+  let currentTab = 'expense';
 
+  // ── Init ──
   function init() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) document.getElementById('scriptUrl').value = saved;
+    const savedExpense = localStorage.getItem(EXPENSE_URL_KEY);
+    if (savedExpense) document.getElementById('expenseUrl').value = savedExpense;
+    const savedCommute = localStorage.getItem(COMMUTE_URL_KEY);
+    if (savedCommute) document.getElementById('commuteUrl').value = savedCommute;
+
     const today = new Date();
     const y = today.getFullYear();
     const m = String(today.getMonth() + 1).padStart(2, '0');
     const d = String(today.getDate()).padStart(2, '0');
-    document.getElementById('expDate').value = `${y}-${m}-${d}`;
+    const dateStr = `${y}-${m}-${d}`;
+    document.getElementById('expDate').value = dateStr;
+    document.getElementById('commuteDay').value = dateStr;
+
+    // Default time leave to now
+    const hh = String(today.getHours()).padStart(2, '0');
+    const mm = String(today.getMinutes()).padStart(2, '0');
+    document.getElementById('timeLeave').value = `${hh}:${mm}`;
   }
 
-  function toggleSettings() {
-    document.getElementById('settingsPanel').classList.toggle('open');
+  // ── Tab switching ──
+  function switchTab(tab) {
+    currentTab = tab;
+    const container = document.getElementById('swipeContainer');
+    if (tab === 'commute') {
+      container.classList.add('show-commute');
+      document.getElementById('tabExpense').classList.remove('active');
+      document.getElementById('tabCommute').classList.add('active');
+    } else {
+      container.classList.remove('show-commute');
+      document.getElementById('tabExpense').classList.add('active');
+      document.getElementById('tabCommute').classList.remove('active');
+    }
   }
 
-  function saveUrl() {
-    const url = document.getElementById('scriptUrl').value.trim();
+  // Swipe gesture support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) < 60) return;
+    if (dx < 0 && currentTab === 'expense') switchTab('commute');
+    if (dx > 0 && currentTab === 'commute') switchTab('expense');
+  }, { passive: true });
+
+  // ── Settings ──
+  function toggleSettings(type) {
+    const panel = document.getElementById(type === 'expense' ? 'settingsExpense' : 'settingsCommute');
+    panel.classList.toggle('open');
+  }
+
+  function saveUrl(type) {
+    const key = type === 'expense' ? EXPENSE_URL_KEY : COMMUTE_URL_KEY;
+    const input = document.getElementById(type === 'expense' ? 'expenseUrl' : 'commuteUrl');
+    const url = input.value.trim();
     if (!url) { showToast('Paste your Apps Script URL first', 'error'); return; }
-    localStorage.setItem(STORAGE_KEY, url);
+    localStorage.setItem(key, url);
     showToast('✓ URL saved!');
-    document.getElementById('settingsPanel').classList.remove('open');
+    document.getElementById(type === 'expense' ? 'settingsExpense' : 'settingsCommute').classList.remove('open');
   }
 
+  // ── Category ──
   function selectCat(el) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     selectedCat = el.dataset.cat;
     const dd = document.getElementById('catDropdown');
-    dd.value = '';
-    dd.classList.remove('selected');
+    dd.value = ''; dd.classList.remove('selected');
   }
-
   function selectCatDropdown(el) {
     if (!el.value) return;
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -311,15 +401,14 @@
     el.classList.add('selected');
   }
 
+  // ── Payment ──
   function selectPay(el) {
     document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     selectedPay = el.dataset.pay;
     const dd = document.getElementById('payDropdown');
-    dd.value = '';
-    dd.classList.remove('selected');
+    dd.value = ''; dd.classList.remove('selected');
   }
-
   function selectPayDropdown(el) {
     if (!el.value) return;
     document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
@@ -327,58 +416,89 @@
     el.classList.add('selected');
   }
 
+  // ── Format date M/D/YYYY ──
   function formatDate(val) {
-    const parts = val.split('-');
-    return parseInt(parts[1]) + '/' + parseInt(parts[2]) + '/' + parts[0];
+    const p = val.split('-');
+    return parseInt(p[1]) + '/' + parseInt(p[2]) + '/' + p[0];
   }
 
-  async function submitExpense() {
-    const scriptUrl = localStorage.getItem(STORAGE_KEY) || document.getElementById('scriptUrl').value.trim();
-    if (!scriptUrl) { showToast('Add your Apps Script URL first', 'error'); return; }
+  // ── Format time to H:MM AM/PM ──
+  function formatTime(val) {
+    if (!val) return '';
+    const [hh, mm] = val.split(':');
+    const h = parseInt(hh);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${mm} ${ampm}`;
+  }
 
+  // ── Submit expense ──
+  async function submitExpense() {
+    const url = localStorage.getItem(EXPENSE_URL_KEY) || document.getElementById('expenseUrl').value.trim();
+    if (!url) { showToast('Add your Apps Script URL first', 'error'); return; }
     const amount = parseFloat(document.getElementById('amount').value);
     if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
-
     const desc = document.getElementById('description').value.trim();
     if (!desc) { showToast('Add a description', 'error'); return; }
-
     const where = document.getElementById('where').value.trim();
-    const dateVal = document.getElementById('expDate').value;
-    const date = formatDate(dateVal);
+    const date = formatDate(document.getElementById('expDate').value);
 
-    const btn = document.getElementById('submitBtn');
+    const btn = document.getElementById('expenseSubmitBtn');
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div>&nbsp; Sending...';
 
-    const params = new URLSearchParams({
-      date,
-      category: selectedCat,
-      description: desc,
-      where: where || '',
-      cost: amount.toFixed(2),
-      paymentType: selectedPay
-    });
-
-    const fullUrl = scriptUrl + '?' + params.toString();
+    const params = new URLSearchParams({ date, category: selectedCat, description: desc, where: where || '', cost: amount.toFixed(2), paymentType: selectedPay });
 
     try {
-      await fetch(fullUrl, { method: 'GET', mode: 'no-cors' });
-      addRecent({ date, category: selectedCat, description: desc, where, cost: amount.toFixed(2), paymentType: selectedPay });
+      await fetch(url + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+      addExpenseRecent({ date, category: selectedCat, description: desc, where, cost: amount.toFixed(2), paymentType: selectedPay });
       showToast('✓ Logged to Google Sheets!');
       document.getElementById('amount').value = '';
       document.getElementById('description').value = '';
       document.getElementById('where').value = '';
-    } catch (e) {
-      showToast('Connection error — check URL', 'error');
-    }
+    } catch (e) { showToast('Connection error — check URL', 'error'); }
 
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-send"></i> Log Expense';
   }
 
-  function addRecent(e) {
-    const list = document.getElementById('recentList');
-    if (!hasEntries) { list.innerHTML = ''; hasEntries = true; }
+  // ── Submit commute ──
+  async function submitCommute() {
+    const url = localStorage.getItem(COMMUTE_URL_KEY) || document.getElementById('commuteUrl').value.trim();
+    if (!url) { showToast('Add your Apps Script URL first', 'error'); return; }
+    const day = document.getElementById('commuteDay').value;
+    if (!day) { showToast('Select a day', 'error'); return; }
+    const timeLeave   = document.getElementById('timeLeave').value;
+    const etaArrive   = document.getElementById('etaArrive').value;
+    const actualArrive = document.getElementById('actualArrive').value;
+    if (!timeLeave || !etaArrive || !actualArrive) { showToast('Fill in all times', 'error'); return; }
+
+    const btn = document.getElementById('commuteSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>&nbsp; Sending...';
+
+    const params = new URLSearchParams({
+      action: 'log_commute',
+      day: formatDate(day),
+      timeLeave:    formatTime(timeLeave),
+      etaArrive:    formatTime(etaArrive),
+      actualArrive: formatTime(actualArrive)
+    });
+
+    try {
+      await fetch(url + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+      addCommuteRecent({ day: formatDate(day), timeLeave: formatTime(timeLeave), etaArrive: formatTime(etaArrive), actualArrive: formatTime(actualArrive) });
+      showToast('✓ Commute logged!');
+    } catch (e) { showToast('Connection error — check URL', 'error'); }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send"></i> Log Commute';
+  }
+
+  // ── Recent: expense ──
+  function addExpenseRecent(e) {
+    const list = document.getElementById('expenseRecentList');
+    if (!expenseHasEntries) { list.innerHTML = ''; expenseHasEntries = true; }
     const icon = catIcons[e.category] || 'ti-dots';
     const div = document.createElement('div');
     div.className = 'recent-item';
@@ -393,6 +513,24 @@
     list.insertBefore(div, list.firstChild);
   }
 
+  // ── Recent: commute ──
+  function addCommuteRecent(e) {
+    const list = document.getElementById('commuteRecentList');
+    if (!commuteHasEntries) { list.innerHTML = ''; commuteHasEntries = true; }
+    const div = document.createElement('div');
+    div.className = 'recent-item';
+    div.innerHTML = `
+      <div class="recent-icon blue"><i class="ti ti-car"></i></div>
+      <div class="recent-info">
+        <div class="recent-desc">${e.day}</div>
+        <div class="recent-meta">Left ${e.timeLeave} · ETA ${e.etaArrive}</div>
+      </div>
+      <div class="recent-time">${e.actualArrive}</div>
+    `;
+    list.insertBefore(div, list.firstChild);
+  }
+
+  // ── Toast ──
   function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg;
