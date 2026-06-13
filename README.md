@@ -58,6 +58,8 @@ A mobile-first web app for logging expenses and commute times directly to Google
 
 ## Google Sheet Structure
 
+NOTE: Configure these to how your Google Sheet is structured
+
 ### All EXPENSES tab
 | Col | Field |
 |---|---|
