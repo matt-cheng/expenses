@@ -100,18 +100,8 @@ A mobile-first web app for logging expenses and commute times directly to Google
 
 ---
 
-## Connected Banks (Plaid)
-
-- Chase *(Credit)*
-- Capital One *(Credit)*
-- SoFi *(Checking)*
-- Schwab *(Checking — pending Plaid registration)*
-
----
-
 ## Notes
 
 - Plaid skips **pending transactions** to avoid duplicates — charges appear 1-3 days after posting
 - Transaction IDs in column K prevent duplicate entries on daily sync
 - The `syncDateRange()` function can be used for one-time historical imports — update `START_DATE` and `END_DATE` at the top of the function
-- To add Schwab once approved: add its access token to `ACCESS_TOKENS`, `'Checking'` to `TOKEN_PAYMENT_TYPES`, and `'Schwab'` to `TOKEN_ACCOUNT_NAMES`
