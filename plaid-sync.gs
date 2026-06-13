@@ -52,7 +52,7 @@ function getConfig() {
 var PLAID_CLIENT_ID = 'YOUR_PLAID_CLIENT_ID';
 var PLAID_SECRET    = 'YOUR_PRODUCTION_SECRET';   // paste your production secret
 var PLAID_ENV       = 'production';
-var SHEET_NAME      = 'YOUR_GOOGLE_SHEET_NAME;
+var SHEET_NAME      = 'YOUR_GOOGLE_SHEET_NAME';
 var SPREADSHEET_ID  = 'YOUR_SPREADSHEET_ID';      // paste your spreadsheet ID
 
 
