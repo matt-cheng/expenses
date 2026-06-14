@@ -159,17 +159,6 @@ NOTE: You should use your own google sheet structure
 
 ---
 
-## Connected Banks (Plaid)
-
-| Bank | Type | Status |
-|---|---|---|
-| Chase | Credit | ✅ Connected |
-| Capital One | Credit | ✅ Connected |
-| SoFi | Checking | ✅ Connected |
-| Schwab | Checking | ⏳ Pending Plaid registration |
-
----
-
 ## Notes
 
 - Plaid skips **pending transactions** to avoid duplicates — charges appear 1-3 days after posting
