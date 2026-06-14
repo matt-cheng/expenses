@@ -55,8 +55,6 @@ This is a one-time tool used to connect each bank account to Plaid and generate 
 10. Repeat for every bank — each gives you one access token
 11. Copy the generated `ACCESS_TOKENS` block shown at the bottom of the page
 
-**Banks to connect:** Chase, Capital One, SoFi, Schwab *(Schwab requires additional Plaid registration — see Notes)*
-
 ---
 
 ## Step 2 — Plaid Sync Script (`plaid-sync.gs`)
