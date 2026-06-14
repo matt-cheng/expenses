@@ -70,7 +70,7 @@ This is the main backend that runs daily to pull transactions and handles commut
    var PLAID_CLIENT_ID = 'your_client_id';
    var PLAID_SECRET    = 'your_production_secret';
    var PLAID_ENV       = 'production';
-   var SHEET_NAME      = 'All EXPENSES';
+   var SHEET_NAME      = 'YOUR_SHEET_NAME';
    var SPREADSHEET_ID  = 'your_spreadsheet_id'; // from Google Sheet URL
    ```
 4. Paste your access tokens from Step 1:
