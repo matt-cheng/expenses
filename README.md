@@ -19,46 +19,103 @@ A mobile-first web app for logging expenses and commute times directly to Google
 | File | Description |
 |---|---|
 | `expense-tracker.html` | Main iPhone web app — hosted on GitHub Pages |
-| `plaid-sync.gs` | Google Apps Script — Plaid sync + commute logging backend |
+| `plaid-link-appscript.gs` | Google Apps Script — one-time setup tool to connect banks and get Plaid access tokens |
+| `plaid-sync.gs` | Google Apps Script — daily Plaid transaction sync + commute logging backend |
 
 ---
 
-## Setup
+## Setup Overview
 
-### 1. Google Apps Script
+There are three pieces to set up. Do them in this order:
+
+1. **Plaid Link** — connect your banks and get access tokens *(one time only)*
+2. **Plaid Sync** — paste tokens in and deploy the main backend script
+3. **iPhone App** — add to your home screen and paste the script URL
+
+---
+
+## Step 1 — Plaid Link Setup (`plaid-link-appscript.gs`)
+
+This is a one-time tool used to connect each bank account to Plaid and generate access tokens.
+
+1. Sign up at [dashboard.plaid.com](https://dashboard.plaid.com) and get approved
+2. Go to **Team Settings → Keys** and copy your `client_id` and `production` secret
+3. Go to [script.google.com](https://script.google.com) → **New project**
+4. Paste the contents of `plaid-link-appscript.gs`
+5. Fill in your credentials at the top:
+   ```javascript
+   var PLAID_CLIENT_ID = 'your_client_id';
+   var PLAID_SECRET    = 'your_production_secret';
+   var PLAID_ENV       = 'production';
+   ```
+6. Deploy as **Web App** → Execute as Me → Anyone can access
+7. Open the web app URL in **Chrome** (must be Chrome, not Firefox)
+8. Enter a nickname for each bank (e.g. "Chase") → click **Connect a Bank**
+9. Log into each institution in the Plaid window that opens
+10. Repeat for every bank — each gives you one access token
+11. Copy the generated `ACCESS_TOKENS` block shown at the bottom of the page
+
+**Banks to connect:** Chase, Capital One, SoFi, Schwab *(Schwab requires additional Plaid registration — see Notes)*
+
+---
+
+## Step 2 — Plaid Sync Script (`plaid-sync.gs`)
+
+This is the main backend that runs daily to pull transactions and handles commute logging.
 
 1. Open your Google Sheet → **Extensions → Apps Script**
-2. Create a **new project** and paste the contents of `plaid-sync.gs`
-3. Fill in the credentials at the top:
+2. Paste the contents of `plaid-sync.gs`
+3. Fill in credentials and config at the top:
    ```javascript
    var PLAID_CLIENT_ID = 'your_client_id';
    var PLAID_SECRET    = 'your_production_secret';
    var PLAID_ENV       = 'production';
    var SHEET_NAME      = 'All EXPENSES';
-   var SPREADSHEET_ID  = 'your_spreadsheet_id';
+   var SPREADSHEET_ID  = 'your_spreadsheet_id'; // from Google Sheet URL
    ```
-4. Deploy as **Web App** → Execute as Me → Anyone can access
-5. Copy the `/exec` URL
+4. Paste your access tokens from Step 1:
+   ```javascript
+   const ACCESS_TOKENS = [
+     'access-production-xxx', // Chase
+     'access-production-xxx', // Capital One
+     'access-production-xxx', // SoFi
+   ];
+   ```
+5. Update payment types and account names to match token order:
+   ```javascript
+   const TOKEN_PAYMENT_TYPES = ['Credit', 'Credit', 'Checking'];
+   const TOKEN_ACCOUNT_NAMES = ['Chase', 'Capital One', 'SoFi'];
+   ```
+6. Deploy as **Web App** → Execute as Me → Anyone can access → copy the `/exec` URL
+7. Run **`createDailyTrigger()`** once to enable automatic 6am daily sync
+8. Run **`syncTransactions()`** to test — check your sheet for new rows
 
-### 2. iPhone App
+**One-time historical import:** Update `START_DATE` and `END_DATE` inside `syncDateRange()` then run it to pull a specific date range.
 
-1. Open `https://yourusername.github.io/expenses/expense-tracker.html` in Safari
-2. Tap **Share → Add to Home Screen**
-3. Open the app → tap ⚙️ → paste your Apps Script URL → tap Save
+---
 
-### 3. Plaid Auto-Sync
+## Step 3 — iPhone App (`expense-tracker.html`)
 
-1. Sign up at [dashboard.plaid.com](https://dashboard.plaid.com)
-2. Connect each bank via the Plaid Link setup page to get access tokens
-3. Paste tokens into the `ACCESS_TOKENS` array in `plaid-sync.gs`
-4. Update `TOKEN_PAYMENT_TYPES` and `TOKEN_ACCOUNT_NAMES` to match
-5. Run `createDailyTrigger()` once in Apps Script to enable daily 6am sync
+1. Upload `expense-tracker.html` to your GitHub repo
+2. Enable GitHub Pages: **Settings → Pages → Branch: main → Save**
+3. Open `https://yourusername.github.io/expenses/expense-tracker.html` in **Safari on iPhone**
+4. Tap **Share → Add to Home Screen**
+5. Open the app → tap ⚙️ (top right) → paste your Apps Script URL from Step 2 → tap Save
+6. Do the same for the Commute tab settings — use the same Apps Script URL
+
+---
+
+## Managing the Daily Trigger
+
+To **change the sync time** or **disable/delete** the trigger:
+1. In Apps Script → click the **clock icon ⏰** in the left sidebar (Triggers)
+2. Find `syncTransactions` → click the three dots to Edit, Disable, or Delete
+3. To re-enable: run `createDailyTrigger()` again from the script
 
 ---
 
 ## Google Sheet Structure
-
-NOTE: Configure these to how your Google Sheet is structured
+NOTE: You should use your own google sheet structure
 
 ### All EXPENSES tab
 | Col | Field |
@@ -102,8 +159,20 @@ NOTE: Configure these to how your Google Sheet is structured
 
 ---
 
+## Connected Banks (Plaid)
+
+| Bank | Type | Status |
+|---|---|---|
+| Chase | Credit | ✅ Connected |
+| Capital One | Credit | ✅ Connected |
+| SoFi | Checking | ✅ Connected |
+| Schwab | Checking | ⏳ Pending Plaid registration |
+
+---
+
 ## Notes
 
 - Plaid skips **pending transactions** to avoid duplicates — charges appear 1-3 days after posting
-- Transaction IDs in column K prevent duplicate entries on daily sync
-- The `syncDateRange()` function can be used for one-time historical imports — update `START_DATE` and `END_DATE` at the top of the function
+- Transaction IDs prevent duplicate entries on daily sync — you can hide this column
+- **Regenerate your Plaid secret** if you ever share it accidentally — Plaid Dashboard → Team Settings → Keys → Regenerate
+- The Plaid Link app script (`plaid-link-appscript.gs`) only needs to be run once per bank. After getting your tokens you can leave it deployed or delete it.
